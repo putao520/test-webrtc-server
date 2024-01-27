@@ -2,3 +2,4 @@ vendor
 .idea
 .vscode
 go.sum
+__debug*.exe
