@@ -1,10 +1,12 @@
 package server
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -45,6 +47,8 @@ func NewPullServer() *PullServer {
 		panic(err)
 	}
 
+	_, iceConnectedCtxCancel := context.WithCancel(context.Background())
+
 	peerConnection, err := webrtc.NewPeerConnection(config)
 	if err != nil {
 		panic(err)
@@ -71,6 +75,20 @@ func NewPullServer() *PullServer {
 			if err != nil {
 				println(err)
 			}
+		}
+	})
+
+	peerConnection.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {
+		fmt.Printf("Connection State has changed %s \n", connectionState.String())
+		if connectionState == webrtc.ICEConnectionStateConnected {
+			iceConnectedCtxCancel()
+		}
+	})
+	peerConnection.OnConnectionStateChange(func(s webrtc.PeerConnectionState) {
+		fmt.Printf("Peer Connection State has changed: %s\n", s.String())
+		if s == webrtc.PeerConnectionStateFailed {
+			fmt.Println("Peer Connection has gone to failed exiting")
+			os.Exit(0)
 		}
 	})
 
