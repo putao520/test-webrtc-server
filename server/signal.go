@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/gorilla/websocket"
-	"github.com/pion/webrtc/v3"
 	"log"
 	"net/url"
+
+	"github.com/gorilla/websocket"
+	"github.com/pion/webrtc/v3"
 )
 
 var addr = flag.String("addr", "127.0.0.1:3000", "http service address")
@@ -49,16 +50,12 @@ func NewSignalConnection(id string, peerConnection *webrtc.PeerConnection, role 
 			switch cmd.Type {
 			case "offer":
 				handleOffer(id, peerConnection, c, cmd.Payload, role)
-				break
 			case "answer":
 				handleAnswer(peerConnection, cmd.Payload)
-				break
 			case "candidate":
 				handleCandidate(id, peerConnection, c, cmd.Payload, role)
-				break
 			default:
 				println("unknown message type")
-				break
 			}
 		}
 	}()
